@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			width: 100%;
+			overflow: auto;
+			background-color: #eeccff;
+		}
+
+		/*Header*/
+		/*Nav bar*/
+		nav {
+			display: flex;
+			border: 0px solid red;
+			background-color: #ffaa00;
+			position: relative;
+			max-width: 100%;
+			height: 50px;
+			padding: 10px 5px 10px 5px;	
+			overflow: hidden;
+		}
+
+		nav div {
+			margin-top: auto;
+			margin-bottom: auto;
+			margin-left:10px;
+			width: 100%;	
+		}
+
+		nav div.nav_bar_buttons button {
+			float: right;
+			margin-right:5px;
+		}
+
+		/*Content*/
+		content {
+			display: flex;
+			/*height: 100%;*/
+		}
+
+		content div#left_panel, content div#right_panel {
+			width: 33%;
+		}
+
+		content div#middle_panel {
+			width: 50%;
+			padding-bottom: 10px;
+		}
+
+		content div.panel_columns {
+			height: 100vh;
+		}
+
+		content div.card {
+			/*border: solid 1px;*/
+			border-radius:5px;
+			width:100%;
+			text-align:center;
+			background-color:white;
+			display: inline-block;
+			/*padding:2px 2px;*/
+			margin-top:10px;
+			/*margin-right: 2%;*/
+			/*margin-left:2%;*/
+			overflow: hidden;
+		}
+
+		div#wishEditor {
+			display: flex;
+			flex-direction: column;
+			margin-top: 50px;
+		}
+
+		div#wishEditor div {
+			margin-top: 5px;
+		}
+
+		form div
+
+	</style>
+</head>
+<body>
+	<header>
+		<nav>
+			<div>Bucket List</div>
+			<div>
+				<input type = "text" name = "search_text"/>
+				<button>Search</button>
+			</div>
+			<div class="nav_bar_buttons">
+				<button>Account</button>
+				<button>Notifications</button>
+			</div>
+		</nav>
+	</header>
+	<content>
+		<div id="left_panel" class="panel_columns"></div>
+		<div id="middle_panel" class="panel_columns"></div>
+		<div id="right_panel" class="panel_columns"></div>
+	</content>
+	<footer></footer>
+
+	<script type="text/javascript">
+
+		class uihelper {
+
+			current_stage = "live_feed";
+
+
+			removeFeedArea() {
+				document.getElementById("middle_panel").innerHTML = '';
+			}
+
+			getEditorFromParams () {
+				return [
+				{"name":"todo","type":"text", "placeholder":"I wanna do.."},
+				{"name":"detail", "type":"textarea", "rows":20, "cols":60, "placeholder":"Story on why doing it?."}
+				]
+			}
+
+			addWishEditor() {
+				let formDiv = document.createElement('div');
+				formDiv.setAttribute("id", "wishEditor");
+				let formTitle = document.createElement('h1');
+				formTitle.innerHTML = "Create your bucket item."
+				formDiv.appendChild(formTitle);
+				var formElement = document.createElement('form');
+				var formParams = this.getEditorFromParams();
+
+				for (let i=0; i<formParams.length; i++) {
+					let formParam = formParams[i];
+					var wrapper_div = document.createElement('div');
+
+					var label_div = document.createElement('div');
+
+					var label = document.createElement('label');
+					label.setAttribute("for", formParam.name);
+					label.innerHTML = formParam.name.toUpperCase();
+
+					label_div.appendChild(label);
+					formDiv.appendChild(label_div);
+
+					var input_element_div = document.createElement('div');
+
+					if ( formParam.type == "textarea" ) {
+						var input_element = document.createElement("textarea");
+						input_element.setAttribute("rows", formParam.rows);
+						input_element.setAttribute("cols", formParam.cols);
+					} else {
+						var input_element = document.createElement('input');
+						input_element.setAttribute("type", formParam.type);		
+					}
+					
+					input_element.setAttribute("name", formParam.name);
+					input_element.setAttribute("placeholder", formParam.placeholder);
+					input_element_div.appendChild(input_element);
+					formElement.appendChild(input_element_div);
+
+					wrapper_div.appendChild(label_div);
+					wrapper_div.appendChild(input_element_div);
+
+					formElement.appendChild(wrapper_div);
+					formDiv.appendChild(formElement);
+
+				}
+
+				let submitButton = document.createElement('button');
+				submitButton.innerHTML = "Post";
+				submitButton.setAttribute("id", "wishSubmitButton");
+
+				formElement.appendChild(submitButton);
+				document.getElementById("middle_panel").appendChild(formDiv);
+			}
+
+			inflateFeedElement (message) {
+				let middle_panel = document.getElementById("middle_panel");
+
+				let feed_div = document.createElement('div');
+				feed_div.className = "card";
+
+				let message_area = document.createElement('div');
+				message_area.className = "message_area";
+
+				let message_paragraph = document.createElement('p');
+				message_paragraph.innerHTML = message;
+				message_area.appendChild(message_paragraph);
+
+				feed_div.appendChild(message_area);
+
+				let interact_area = document.createElement('div');
+				interact_area.className = "interact_area";
+
+				let likeButton = document.createElement('button');
+				likeButton.innerHTML = 'Like';
+				interact_area.appendChild(likeButton);
+
+				let metooButton = document.createElement('button');
+				metooButton.innerHTML = 'Metoo';
+				interact_area.appendChild(metooButton);
+
+				feed_div.appendChild(interact_area);
+
+				middle_panel.appendChild(feed_div);
+			}
+		}
+
+
+		function getBucketListItems( account_id, auth ) {
+			return [ 
+			'Climbing the Alps', 
+			'G2 and Everest before 40!.',
+			'Learn to fly a plane.', 
+			'Cross Atlantic.', 
+			'Fall in love.', 
+			'Go out for dating.', 
+			'Start my own business.',
+			'Travel the world',
+			'Reach space',
+			'Walk on the moon.',
+			'Ride an F1 car.']
+		}
+
+		var ui = new uihelper();
+
+		function updateFeed(list_items) {
+			for (let i=0; i<list_items.length; i++) {
+				ui.inflateFeedElement(list_items[i]);
+			}
+		}
+
+		let list_items = getBucketListItems('1001', {"password":"123456"});
+		updateFeed(list_items);
+		// ui.removeFeedArea();
+		// ui.addWishEditor();
+
+	</script>
+</body>
+</html>

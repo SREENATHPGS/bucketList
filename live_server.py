@@ -1,3 +1,4 @@
+from waitress import serve
 from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -30,4 +31,4 @@ def create_bucket_item():
     return "Create a bucket item."
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', port = 5050, debug=True)
+    serve(host = '0.0.0.0', port = 5050, debug=True)

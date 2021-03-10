@@ -1,0 +1,153 @@
+* {
+    box-sizing: border-box;
+}
+
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
+
+.row-1 {height: 8.33%;}
+.row-2 {height: 16.66%;}
+.row-3 {height: 25%;}
+.row-4 {height: 33.33%;}
+.row-5 {height: 41.66%;}
+.row-6 {height: 50%;}
+.row-7 {height: 58.33%;}
+.row-8 {height: 66.66%;}
+.row-9 {height: 75%;}
+.row-10 {height: 83.33%;}
+.row-11 {height: 91.66%;}
+.row-12 {height: 100%;}
+
+[class*="col-"] {
+    float: left;
+    padding: 15px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#main_container {
+    position: absolute;
+    /*margin: 0.5%;*/
+    border: 0px solid black;
+    width: 100%;
+    height: 100%;
+    background-color: #eeccff;
+    /*overflow: hidden;*/
+    overflow: auto;
+}
+
+#top_nav_bar {
+    border: 0px solid red;
+    background-color: #ffaa00;
+    position: relative;
+    top:0%;
+    left: 0%;
+    width: 100%	;
+    height: 8%;	
+    overflow: hidden;
+}
+
+#activity_area {
+    border: 0px solid green;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #eeccff;
+    margin-top: 0.2%;
+    overflow: auto;
+}
+
+#left_panel {
+    height: 100%;
+}
+
+#middle_panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#right_panel {
+    height: 100%;
+}
+
+.card {
+    border: solid 1px;
+    border-radius:5px;
+    width:90%;
+    /*max-height: 10%;*/
+    text-align:center;
+    box-shadow: 5px 5px 5px #000000;
+    background-color:white;
+    display: inline-block;
+    overflow:hidden;
+    padding:1%;
+    margin:1%;
+}
+
+.create_card {
+    border: solid 1px;
+    border-radius:5px;
+    width:90%;
+    /*max-height: 10%;*/
+    text-align:center;
+    box-shadow: 5px 5px 5px #000000;
+    background-color:white;
+    display: inline-block;
+    overflow:hidden;
+    padding:1%;
+    margin:1%;
+}
+
+.message_area {
+    height: 80%;
+}
+
+.interact_area {
+    height: 20%;
+    background-color: #f2f2f2;
+}
+
+.main_title {
+    margin-left: 0.5%;
+    line-height: 2;
+    max-width: 20%;
+    display: inline-block;
+}
+
+.widget {
+    float: right;	
+    display: inline-block;
+    margin-top: 2%;
+    line-height: 2;
+    margin-bottom: 2%;
+    margin-right: 0.5%;
+    margin-bottom: 2%;
+    margin-right: 0.5%;
+    /*max-width: 20%;*/
+}
+
+.create_card tr {
+    margin: 10px;
+}
+
+table {
+    margin: auto;
+}
+
+#filter_tray {
+    position: relative;
+}

@@ -31,4 +31,4 @@ def create_bucket_item():
     return "Create a bucket item."
 
 if __name__ == '__main__':
-    serve(host = '0.0.0.0', port = 5050, debug=True)
+    serve(app, host = '0.0.0.0', port = 5050)

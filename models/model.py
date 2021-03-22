@@ -1,43 +1,60 @@
-from app import app, db
+from . import DB_URL, Base, engine, Session
+import os
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Table, Text
+from sqlalchemy.orm import backref, relationship, sessionmaker
 
-user_wishes_secondary_table = db.Table(
+user_wishes_secondary_table = Table(
     'wishes',
-    db.Column('user_id', db.Integer, db.ForeignKey('account_qquser.id'), primary_key = True),
-    db.Column('wish_id', db.Integer, db.ForeignKey('wish.id'), primary_key = True)
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('account_user.id')),
+    Column('wish_id', Integer, ForeignKey('wish.id'))
     )
 
-# class Admins(db.Model):
+# class Admins(Base):
 #     __tablename__ = "admins"
-#     id = db.Column(db.Integer, primary_key = True)
-#     username = db.Column(db.String(32), index = True)
-#     password_hash = db.Column(db.String(128))
+#     id = Column(Integer, primary_key = True)
+#     username = Column(String(32), index = True)
+#     password_hash = Column(String(128))
 
-class AccountUser(db.Model):
-    __tablename__ = "account_user"
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(32), index = True)
-    password_hash = db.Column(db.String(128))
-    email = db.Column(db.String(100))
-    apikey = db.Column(db.String(64))
-    wishes = db.relationship('Wish', secondary = user_wishes_secondary_table, lazy = 'subquery', backref = db.backref('users', lazy = True))
-
-# class Profile(db.Model):
-#     # __tablename__ = "profile"
-#     # id = db.Column(db.Integer, primary_key = True)
-#     # profile_image = db.Column(db.Text)
-#     # about = db.Column(db.Text)
-#     pass
-
-class Wish(db.Model):
+class Wish(Base):
     __tablename__ = "wish"
-    id = db.Column(db.Integer, primary_key = True)
-    wish = db.Column(db.Text, nullable=True)
+    id = Column(Integer, primary_key = True)
+    wish = Column(Text, nullable=True)
 
-# class Comment(db.Model):
-#     pass
+class AccountUser(Base):
+    __tablename__ = "account_user"
+    id = Column(Integer, primary_key = True)
+    username = Column(String(32), index = True)
+    password_hash = Column(String(128))
+    email = Column(String(100))
+    apikey = Column(String(64))
+    wishes = relationship("Wish", secondary = user_wishes_secondary_table)
+    profile = relationship("Profile", uselist = False, back_populates = "account_user")
 
-# class Like(db.Model):
-#     pass
+class Profile(Base):
+    __tablename__ = "profile"
+    id = Column(Integer, primary_key = True)
+    profile_image = Column(Text)
+    about = Column(Text)
+    account_user_id = Column(Integer, ForeignKey('account_user.id'))
+    account_user = relationship("AccountUser", back_populates = "profile")
 
-# class Doit(db.Model):
-#     pass
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key = True)
+    comment_text = Column(Text)
+    reply_to = Column(Integer)
+    user_id = Column(Integer, ForeignKey('account_user.id'))
+    wish_id = Column(Integer, ForeignKey('wish.id'))
+
+class Reaction(Base):
+    __tablename__ = "reaction"
+    id = Column(Integer, primary_key = True)
+    reaction_type = Column(String(50))
+    wish_id = Column(Integer, ForeignKey('wish.id'))
+    comment_id = Column(Integer, ForeignKey('comments.id'))
+
+Base.metadata.create_all(engine)
+
+if __name__ == "__main__":
+    pass

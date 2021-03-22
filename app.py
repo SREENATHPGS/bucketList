@@ -2,8 +2,9 @@ from waitress import serve
 from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
-import logging
+import logging, os
 from logging.handlers import TimedRotatingFileHandler
+from flask_sqlalchemy import SQLAlchemy
 
 #Setting up logger.
 logger = logging.getLogger("app_logs")
@@ -14,6 +15,18 @@ logger.addHandler(handler)
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+
+POSTGRES_USER=os.environ.get('POSTGRES_USER')
+POSTGRES_PW=os.environ.get('POSTGRES_PW')
+POSTGRES_URL=os.environ.get('POSTGRES_URL')
+POSTGRES_DB=os.environ.get('POSTGRES_DB')
+DB_URL = 'postgresql+psycopg2://{user}:{password}@{url}/{db}'.format(user=POSTGRES_USER, password=POSTGRES_PW, url=POSTGRES_URL, db=POSTGRES_DB)
+
+app.secret_key="veryl0ng555stronghgkeyy"
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app) #database declaration
 
 users = {
             "nat" : generate_password_hash("123456"),
@@ -26,15 +39,7 @@ def verify_password(username, password):
         return check_password_hash( users.get(username), password )
     return False
 
-@app.route('/', methods = [ 'GET', 'POST' ])
-@auth.login_required
-def home():
-    return render_template('frontend1.html')
-
-@app.route('/bucket_item', methods = ['POST'])
-@auth.login_required
-def create_bucket_item():
-    return "Create a bucket item."
+from views.login_api import *
 
 if __name__ == '__main__':
     logger.info("Starting server on port 5050.")

@@ -2,16 +2,32 @@ from waitress import serve
 from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
-import logging, os
+import logging, os, sys
 from logging.handlers import TimedRotatingFileHandler
 from flask_sqlalchemy import SQLAlchemy
 
-#Setting up logger.
-logger = logging.getLogger("app_logs")
-logger.setLevel(logging.INFO)
-handler = TimedRotatingFileHandler('./logs/app.log',when='d',interval=1,backupCount=10)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(process)d -  %(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(handler)
+from logging.config import dictConfig
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    },
+    'custom': {
+        'class' : 'logging.handlers.TimedRotatingFileHandler',
+        'formatter' : 'default',
+        'filename' :'./logs/app.log'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi', 'custom']
+    }
+})
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -39,9 +55,9 @@ def verify_password(username, password):
         return check_password_hash( users.get(username), password )
     return False
 
-from views.login_api import *
+from views.users import *
 
 if __name__ == '__main__':
-    logger.info("Starting server on port 5050.")
+    app.logger.info("Starting server on port 5050.")
     app.run(host = '0.0.0.0', port = 5050, debug = True)
     #serve(app, host = '0.0.0.0', port = 5050)

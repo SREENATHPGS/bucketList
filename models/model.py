@@ -24,12 +24,30 @@ class Wish(Base):
 class AccountUser(Base):
     __tablename__ = "account_user"
     id = Column(Integer, primary_key = True)
-    username = Column(String(32), index = True)
+    username = Column(String(32), index = True, nullable = False)
     password_hash = Column(String(128))
-    email = Column(String(100))
+    email = Column(String(100), nullable = False)
     apikey = Column(String(64))
     wishes = relationship("Wish", secondary = user_wishes_secondary_table)
     profile = relationship("Profile", uselist = False, back_populates = "account_user")
+
+    def getSession(self):
+        return Session()
+
+    def create(self):
+        session = self.getSession()
+        session.add(self)
+        session.commit()
+        session.close()
+
+    def update(self):
+        pass
+
+    def get(self):
+        pass
+
+    def delete(self):
+        pass        
 
 class Profile(Base):
     __tablename__ = "profile"
@@ -39,6 +57,21 @@ class Profile(Base):
     account_user_id = Column(Integer, ForeignKey('account_user.id'))
     account_user = relationship("AccountUser", back_populates = "profile")
 
+    def getSession(self):
+        return Session()
+
+    def create(self):
+        pass
+
+    def update(self):
+        pass
+
+    def get(self):
+        pass
+
+    def delete(self):
+        pass
+
 class Comment(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key = True)
@@ -47,12 +80,42 @@ class Comment(Base):
     user_id = Column(Integer, ForeignKey('account_user.id'))
     wish_id = Column(Integer, ForeignKey('wish.id'))
 
+    def getSession(self):
+        return Session()
+
+    def create(self):
+        pass
+
+    def update(self):
+        pass
+
+    def get(self):
+        pass
+
+    def delete(self):
+        pass
+
 class Reaction(Base):
     __tablename__ = "reaction"
     id = Column(Integer, primary_key = True)
     reaction_type = Column(String(50))
     wish_id = Column(Integer, ForeignKey('wish.id'))
     comment_id = Column(Integer, ForeignKey('comments.id'))
+
+    def getSession(self):
+        return Session()
+
+    def create(self):
+        pass
+
+    def update(self):
+        pass
+
+    def get(self):
+        pass
+
+    def delete(self):
+        pass
 
 Base.metadata.create_all(engine)
 

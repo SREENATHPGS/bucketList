@@ -1,4 +1,5 @@
-from flask import request
+import json
+from flask import request, jsonify
 from app import app, auth
 from models.model import AccountUser
 
@@ -53,7 +54,7 @@ def authenticate(content_func):
 # def create_bucket_item():
 #     return "Create a bucket item."
 
-@app.route('/user/register', methods = ['POST'])
+@app.route('/users', methods = ['POST'])
 @validateData
 def add_user(data):
     logger.info(data)
@@ -62,25 +63,36 @@ def add_user(data):
     newUser.username = data["username"]
     newUser.password_hash = data["password"]
     newUser.email = data["email"]
-    newUser.apikey = "1234qwerty"
 
     newUser.create()
     return "user registration successful."
 
-@app.route('/user/register', methods = ['PATCH'])
+@app.route('/users', methods = ['PATCH'])
 def update_user():
     data = request.get_json()
     logger.info(data)
+    uid = data["uid"]
+    for attribute_name, value in data["update_data"].items():
+        logger.info(f"Patching {attribute_name} with {value} for user {uid}")
+        AccountUser.update(uid, attribute_name, value)
     return "updating registration successful."
 
-@app.route('/user/register', methods = ['GET'])
+@app.route('/users', methods = ['GET'])
 def get_user():
-    data = request.get_json()
-    logger.info(data)
-    return "user details."
+    def formatify(ob):
+        ob = json.loads(json.dumps(dict(ob.__dict__), default=str))
+        ob.pop('id')
+        ob.pop('_sa_instance_state')
+        return ob
 
-@app.route('/user/register', methods = ['DELETE'])
+    out = [formatify(record) for record in AccountUser.get()]
+    return jsonify(out)
+
+@app.route('/users', methods = ['DELETE'])
 def delete_user():
     data = request.get_json()
-    logger.info(data)
+    uid_list = data["uids"]
+    for uid in uid_list:
+        logger.info(f"Deleting use with uid {uid}")
+        AccountUser.delete(uid)
     return "deleteing user registration successful."

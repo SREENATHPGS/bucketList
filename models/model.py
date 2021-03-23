@@ -1,7 +1,7 @@
-from . import DB_URL, Base, engine, Session
-import os
+from . import DB_URL, Base, engine, session, InvalidUpdate, UserDetailsNotProvided, NoDataBaseSession
+import os, secrets, string, json
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Table, Text
-from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.orm import backref, relationship
 
 user_wishes_secondary_table = Table(
     'wishes',
@@ -10,11 +10,20 @@ user_wishes_secondary_table = Table(
     Column('wish_id', Integer, ForeignKey('wish.id'))
     )
 
+alphabet = string.ascii_letters + string.digits
 # class Admins(Base):
 #     __tablename__ = "admins"
 #     id = Column(Integer, primary_key = True)
 #     username = Column(String(32), index = True)
 #     password_hash = Column(String(128))
+def getApiKey(length = 6):
+    return ''.join(secrets.choice(alphabet) for i in range(length))
+
+def formatify(ob):
+    ob = json.loads(json.dumps(dict(ob), default=str))
+    ob.pop('id')
+    return ob
+
 
 class Wish(Base):
     __tablename__ = "wish"
@@ -24,30 +33,63 @@ class Wish(Base):
 class AccountUser(Base):
     __tablename__ = "account_user"
     id = Column(Integer, primary_key = True)
-    username = Column(String(32), index = True, nullable = False)
+    uid = Column(String(64), nullable=False, unique= True, default = getApiKey(16))
+    username = Column(String(32), index = True, nullable = False, unique = True)
     password_hash = Column(String(128))
-    email = Column(String(100), nullable = False)
-    apikey = Column(String(64))
+    email = Column(String(100), nullable = False, unique =  True)
+    apikey = Column(String(64), unique = True, default = getApiKey(32))
     wishes = relationship("Wish", secondary = user_wishes_secondary_table)
     profile = relationship("Profile", uselist = False, back_populates = "account_user")
 
-    def getSession(self):
-        return Session()
 
     def create(self):
-        session = self.getSession()
         session.add(self)
         session.commit()
+        uid = self.uid
         session.close()
 
-    def update(self):
-        pass
+        return uid
+        
+    @staticmethod
+    def update(uid, attribute_name, value):
+        if not uid:
+            raise UserDetailsNotProvided("Uid needed for patch.")
 
-    def get(self):
-        pass
+        if not attribute_name:
+            raise UserDetailsNotProvided("Atlease one attribute name is needed for patching.")
 
-    def delete(self):
-        pass        
+        if attribute_name == "uid":
+            raise InvalidUpdate("Uid cannot be modified.")
+
+        if attribute_name == "username" and value is None:        
+            raise InvalidUpdate("Usename cannot be none.")
+        
+        if attribute_name == "email" and value is None:
+            raise InvalidUpdate("Email cannot be none.")
+
+        user = AccountUser.get("single", uid)
+        setattr(user, attribute_name, value)
+        session.commit()
+
+
+    @staticmethod
+    def get(get_type = "all", uid = None):
+        if get_type == "single":
+            if uid:
+                pass
+            else:
+                raise UserDetailsNotProvided("Uid needed for quering user data.")
+        
+            user = session.query(AccountUser).filter(AccountUser.uid == uid).first()
+            return user
+        else:
+            return session.query(AccountUser).all()
+
+    @staticmethod
+    def delete(uid):
+        user = AccountUser.get("single",uid)
+        session.delete(user)
+        session.commit()
 
 class Profile(Base):
     __tablename__ = "profile"

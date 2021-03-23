@@ -14,3 +14,22 @@ DB_URL = 'postgresql+psycopg2://{user}:{password}@{url}/{db}'.format(user=POSTGR
 Base = declarative_base()
 engine = create_engine(DB_URL)
 Session = sessionmaker(bind=engine)
+session = Session()
+
+class UserDetailsNotProvided(Exception):
+    pass
+
+class UserAlreadyExists(Exception):
+    pass
+
+class NoSearchParamGiven(Exception):
+    pass
+
+class UserDoesNotExist(Exception):
+    pass
+
+class NoDataBaseSession(Exception):
+    pass
+
+class InvalidUpdate(Exception):
+    pass

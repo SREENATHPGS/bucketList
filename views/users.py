@@ -1,7 +1,7 @@
 import json
 from flask import request, jsonify
 from app import app, auth
-from models.model import AccountUser
+from models.model import AccountUser, Profile
 
 logger = app.logger
 def validateData(content_func):
@@ -53,6 +53,8 @@ def authenticate(content_func):
 # @auth.login_required
 # def create_bucket_item():
 #     return "Create a bucket item."
+def getDefaultProfileObject():
+    return Profile(profile_image = "staic/images/defaultImageIdenticon.png", about = "I'm an awesome dreamer and great doer!.")
 
 @app.route('/users', methods = ['POST'])
 @validateData
@@ -63,6 +65,11 @@ def add_user(data):
     newUser.username = data["username"]
     newUser.password_hash = data["password"]
     newUser.email = data["email"]
+
+    if not "profile" in data:
+        newUser.profile = getDefaultProfileObject()
+    else:
+        newUser.profile = Profile(profile_image = data["profile"]["profile_image"], about = data["profile"]["about"])
 
     newUser.create()
     return "user registration successful."
@@ -80,9 +87,19 @@ def update_user():
 @app.route('/users', methods = ['GET'])
 def get_user():
     def formatify(ob):
+        profile_ob = None
+        if hasattr(ob, "profile"):
+            profile_ob = formatify(ob.profile)
+        
         ob = json.loads(json.dumps(dict(ob.__dict__), default=str))
+        
+        if profile_ob:
+            ob.pop('profile')
+            ob["profile"] = profile_ob
+            
         ob.pop('id')
         ob.pop('_sa_instance_state')
+
         return ob
 
     out = [formatify(record) for record in AccountUser.get()]

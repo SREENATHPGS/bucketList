@@ -39,7 +39,7 @@ class AccountUser(Base):
     email = Column(String(100), nullable = False, unique =  True)
     apikey = Column(String(64), unique = True, default = getApiKey(32))
     wishes = relationship("Wish", secondary = user_wishes_secondary_table)
-    profile = relationship("Profile", uselist = False, back_populates = "account_user")
+    profile = relationship("Profile", uselist = False, lazy="joined", back_populates = "account_user")
 
 
     def create(self):
@@ -94,13 +94,11 @@ class AccountUser(Base):
 class Profile(Base):
     __tablename__ = "profile"
     id = Column(Integer, primary_key = True)
+    uid = Column(String(64), nullable=False, unique= True, default = getApiKey(16))
     profile_image = Column(Text)
     about = Column(Text)
     account_user_id = Column(Integer, ForeignKey('account_user.id'))
     account_user = relationship("AccountUser", back_populates = "profile")
-
-    def getSession(self):
-        return Session()
 
     def create(self):
         pass
@@ -117,13 +115,11 @@ class Profile(Base):
 class Comment(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key = True)
+    uid = Column(String(64), nullable=False, unique= True, default = getApiKey(16))
     comment_text = Column(Text)
     reply_to = Column(Integer)
     user_id = Column(Integer, ForeignKey('account_user.id'))
     wish_id = Column(Integer, ForeignKey('wish.id'))
-
-    def getSession(self):
-        return Session()
 
     def create(self):
         pass
@@ -140,12 +136,10 @@ class Comment(Base):
 class Reaction(Base):
     __tablename__ = "reaction"
     id = Column(Integer, primary_key = True)
+    uid = Column(String(64), nullable=False, unique= True, default = getApiKey(16))
     reaction_type = Column(String(50))
     wish_id = Column(Integer, ForeignKey('wish.id'))
     comment_id = Column(Integer, ForeignKey('comments.id'))
-
-    def getSession(self):
-        return Session()
 
     def create(self):
         pass

@@ -1,5 +1,5 @@
 import json
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from app import app, auth
 from models.model import AccountUser, Profile
 
@@ -43,11 +43,6 @@ def authenticate(content_func):
         return content_func(*args, **kwargs)
     inner.__name__ = content_func.__name__
     return inner
-
-# @app.route('/', methods = [ 'GET', 'POST' ])
-# @auth.login_required
-# def home():
-#     return render_template('frontend1.html')
 
 # @app.route('/bucket_item', methods = ['POST'])
 # @auth.login_required

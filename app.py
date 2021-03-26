@@ -57,6 +57,7 @@ def verify_password(username, password):
 
 from views.users import *
 from views.wishes import *
+from views.frontend import *
 
 if __name__ == '__main__':
     app.logger.info("Starting server on port 5050.")

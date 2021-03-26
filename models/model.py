@@ -28,7 +28,52 @@ def formatify(ob):
 class Wish(Base):
     __tablename__ = "wish"
     id = Column(Integer, primary_key = True)
+    uid = Column(String(64), nullable=False, unique= True, default = getApiKey(16))
     wish = Column(Text, nullable=True)
+    
+    def create(self):
+        session.add(self)
+        session.commit()
+        uid = self.uid
+        return uid
+    
+    @staticmethod
+    def update(uid, attribute_name, value):
+        if not uid:
+            raise UserDetailsNotProvided("Uid needed for patch.")
+
+        if not attribute_name:
+            raise UserDetailsNotProvided("Atlease one attribute name is needed for patching.")
+
+        if attribute_name == "uid":
+            raise InvalidUpdate("Uid cannot be modified.")
+
+        if attribute_name == "wish" and (value is None or value == ""):
+            raise InvalidUpdate("Wish cannot be none or empty string.")
+
+        user = Wish.get("single", uid)
+        setattr(user, attribute_name, value)
+        session.commit()
+
+
+    @staticmethod
+    def get(get_type = "all", uid = None):
+        if get_type == "single":
+            if uid:
+                pass
+            else:
+                raise UserDetailsNotProvided("Uid needed for quering wish data.")
+        
+            user = session.query(Wish).filter(Wish.uid == uid).first()
+            return user
+        else:
+            return session.query(Wish).all()
+
+    @staticmethod
+    def delete(uid):
+        user = Wish.get("single",uid)
+        session.delete(user)
+        session.commit()
 
 class AccountUser(Base):
     __tablename__ = "account_user"
@@ -46,8 +91,6 @@ class AccountUser(Base):
         session.add(self)
         session.commit()
         uid = self.uid
-        session.close()
-
         return uid
         
     @staticmethod

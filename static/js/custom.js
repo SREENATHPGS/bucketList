@@ -45,6 +45,8 @@ function toggleLogginForm() {
 //Check if the user is logged in.
 //Call this callback if the cookie is valid.
 function showCommonWall() {
+    document.getElementById("loginForm").style.display = "none";
+
     getBucketListItems('1001', {"password":"123456"});
 
 }
@@ -76,7 +78,7 @@ function validateLogin() {
 function doUILogin() {
     let username = document.getElementById("loginUsername").value;
     let password = document.getElementById("loginPassword").value;
-    doLogin(username, password);
+    doLogin(username, password, doAfterLogin);
 }
 //Login 
 function doAfterLogin(response) {
@@ -84,10 +86,11 @@ function doAfterLogin(response) {
     setCookie("username", response["data"]["username"], 1);
     setCookie("apiKey", response["data"]["apiKey"], 1);
     showCommonWall();
+
 }
-function doLogin(username, password) {
+function doLogin(username, password, callback) {
     if (username && password) {
-        xOb.postData("user/login",{"Content-Type":"application/json"},[], {"username":username, "password":password}, doAfterLogin )
+        xOb.postData("user/login",{"Content-Type":"application/json"},[], {"username":username, "password":password}, callback)
     }
 }
 

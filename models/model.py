@@ -133,6 +133,21 @@ class AccountUser(Base):
         user = AccountUser.get("single",uid)
         session.delete(user)
         session.commit()
+    
+    @staticmethod
+    def exists(username, apikey):
+        user = session.query(AccountUser).filter(AccountUser.username == username, AccountUser.apikey == apikey).first()
+        if user:
+            return True
+        return False
+    
+    @staticmethod
+    def login(username, password):
+        user = session.query(AccountUser).filter(AccountUser.username == username, AccountUser.password_hash ==password).first()
+        if user:
+            return {"username":user.username, "apiKey" : user.apikey}
+        return None
+
 
 class Profile(Base):
     __tablename__ = "profile"

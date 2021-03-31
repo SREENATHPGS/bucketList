@@ -21,6 +21,15 @@
 				<button>Search</button>
 			</div>
 		</div>
+		<div id = "loginForm" class = "row-1">
+			<div class="card">
+				<div>
+					<input type="text" name="username" id = "loginUsername" placeholder="Enter your username...">
+					<input type="text" name="password" id = "loginPassword" placeholder="Enter your password...">
+					<button onclick="doUILogin()" id = "loginSubmitButton">Login</button>
+				</div>
+			</div>
+		</div>
 		<div id = "filter_tray" class ="row-1">
 			<div class = "card">
 				<button>Show my posts</button>
@@ -53,6 +62,7 @@
 		</div>
 	</div>
 	<script src="/static/js/api_calls.js"></script>
+	<script src="/static/js/cookie_management.js"></script>
 	<script>
 		var xOb = new ApiCalls("/");
 	</script>

@@ -37,5 +37,60 @@ function updateFeed(resp) {
     }
 }
 
-getBucketListItems('1001', {"password":"123456"});
-//updateFeed(list_items);
+//UI Contols
+function toggleLogginForm() {
+
+}
+
+//Check if the user is logged in.
+//Call this callback if the cookie is valid.
+function showCommonWall() {
+    getBucketListItems('1001', {"password":"123456"});
+
+}
+
+function doAfterValidate(response) {
+    response = JSON.parse(response);
+    let isValid = response["data"]["isValid"];
+    
+    if (isValid) {
+        console.log("User is valid can be logged in.")
+        showCommonWall();
+    } else {
+        console.log("Invalid user.")
+    }
+}
+
+function validateLogin() {
+    let username = getCookie("username");
+    let apiKey = getCookie("apiKey");
+
+    if (username && apiKey) {
+        xOb.postData("user/authorize",{"Content-Type":"application/json"},[], {"username":username, "apiKey":apiKey}, doAfterValidate)
+    } else {
+        console.log("No username and apikey in cookies. Login has to be prompted.");
+    }
+}
+
+//doUILogin
+function doUILogin() {
+    let username = document.getElementById("loginUsername").value;
+    let password = document.getElementById("loginPassword").value;
+    doLogin(username, password);
+}
+//Login 
+function doAfterLogin(response) {
+    response = JSON.parse(response);
+    setCookie("username", response["data"]["username"], 1);
+    setCookie("apiKey", response["data"]["apiKey"], 1);
+    showCommonWall();
+}
+function doLogin(username, password) {
+    if (username && password) {
+        xOb.postData("user/login",{"Content-Type":"application/json"},[], {"username":username, "password":password}, doAfterLogin )
+    }
+}
+
+(function() {
+    validateLogin();
+})();

@@ -29,13 +29,14 @@ def validateData(content_func):
 
 def authenticate(content_func):
     def inner(*args, **kwargs):
-        print("authenticating")
-        print(request.headers)
-        if "api_key" in request.headers:
-            print("api found.")
-            if request.headers["api_key"] == "nsfkjxxcesskkzzzQQQWWW234##@$ESR$FWA":
+        logger.debug("authenticating")
+        logger.debug(request.headers)
+        if "USER-API-KEY" in request.headers and "USERNAME" in request.headers:
+            user = AccountUser.exists(request.headers.get("USER-API-KEY"), request.headers.get("USERNAME"))
+            logger.info(user)
+            if user:
                 print("Authenticated!!")
-                #return True
+                return "Unauthorized", 401
             else:
                 return "Unauthorized", 401
         else:
@@ -80,6 +81,7 @@ def update_user():
     return "updating registration successful."
 
 @app.route('/users', methods = ['GET'])
+@authenticate
 def get_user():
     def formatify(ob):
         profile_ob = None
@@ -122,3 +124,7 @@ def loginUser():
     if user:
         return jsonify({"data":user})
     return jsonify({"message":"No such user or unauthorized."})
+
+@app.route('/user/logout', methods = ['POST'])
+def logoutUser():
+    return "success", 200

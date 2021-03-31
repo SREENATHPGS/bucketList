@@ -1,7 +1,7 @@
 import json
 from flask import request, jsonify, render_template
 from app import app, auth
-from models.model import Wish, getApiKey
+from models.model import Wish, getApiKey, AccountUser
 
 logger = app.logger
 def validateData(content_func):
@@ -20,17 +20,16 @@ def validateData(content_func):
 
 def authenticate(content_func):
     def inner(*args, **kwargs):
-        print("authenticating")
-        print(request.headers)
-        if "api_key" in request.headers:
-            print("api found.")
-            if request.headers["api_key"] == "nsfkjxxcesskkzzzQQQWWW234##@$ESR$FWA":
-                print("Authenticated!!")
-                #return True
+        logger.info("authenticating")
+        # logger.info(request.headers)
+        if "USER-API-KEY" in request.headers and "USERNAME" in request.headers:
+            user = AccountUser.exists(request.headers.get("Username"), request.headers.get("User-Api-Key"))
+            if user:
+                logger.info("Authenticated!!")
             else:
-                return "Unauthorized", 401
+                return "Unauthorized", 403
         else:
-            return "Unauthorized", 401
+            return "Unauthorized", 403
         return content_func(*args, **kwargs)
     inner.__name__ = content_func.__name__
     return inner
@@ -59,6 +58,7 @@ def update_wish():
     return "updating wish successful."
 
 @app.route('/wish', methods = ['GET'])
+@authenticate
 def get_wish():
     def formatify(ob):
         ob = json.loads(json.dumps(dict(ob.__dict__), default=str))

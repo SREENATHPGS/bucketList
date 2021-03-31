@@ -1,5 +1,8 @@
+var apiKey = undefined;
+var username = undefined;
+
 function getBucketListItems( account_id, auth ) {
-    xOb.getData("wish", {"Content-Type":"application/json"},[],updateFeed)
+    xOb.getData("wish", {"Content-Type":"application/json","USER-API-KEY":apiKey, "USERNAME":username},[],updateFeed)
 }
 
 function updateFeed(resp) {
@@ -64,12 +67,14 @@ function doAfterValidate(response) {
 }
 
 function validateLogin() {
-    let username = getCookie("username");
-    let apiKey = getCookie("apiKey");
+    username = getCookie("username");
+    apiKey = getCookie("apiKey");
 
     if (username && apiKey) {
         xOb.postData("user/authorize",{"Content-Type":"application/json"},[], {"username":username, "apiKey":apiKey}, doAfterValidate)
     } else {
+        document.getElementById("loginForm").style.display = "block";
+        // window.location.reload();
         console.log("No username and apikey in cookies. Login has to be prompted.");
     }
 }
@@ -85,13 +90,25 @@ function doAfterLogin(response) {
     response = JSON.parse(response);
     setCookie("username", response["data"]["username"], 1);
     setCookie("apiKey", response["data"]["apiKey"], 1);
-    showCommonWall();
+    // showCommonWall();
+    validateLogin();
 
 }
 function doLogin(username, password, callback) {
     if (username && password) {
         xOb.postData("user/login",{"Content-Type":"application/json"},[], {"username":username, "password":password}, callback)
     }
+}
+
+//doLogout
+function doAfterLogout() {
+    validateLogin();
+}
+
+function doLogout() {
+    deleteCookie("username");
+    deleteCookie("apiKey");
+    xOb.postData("user/logout", {"Content-Type":"application/json"},[],{},doAfterLogout)
 }
 
 (function() {

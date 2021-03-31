@@ -108,3 +108,17 @@ def delete_user():
         logger.info(f"Deleting use with uid {uid}")
         AccountUser.delete(uid)
     return "deleteing user registration successful."
+
+@app.route('/user/authorize', methods = ['POST'])
+def authorizeUser():
+    data = request.get_json()
+    isValid = AccountUser.exists(data["username"], data["apiKey"])
+    return jsonify({"data":{"isValid":isValid}})
+
+@app.route('/user/login', methods = ['POST'])
+def loginUser():
+    data = request.get_json()
+    user = AccountUser.login(data["username"], data["password"])
+    if user:
+        return jsonify({"data":user})
+    return jsonify({"message":"No such user or unauthorized."})
